@@ -157,10 +157,10 @@
             // LED 시각화 처리 - 모든 클래스를 완전히 제거하고 새로 추가
             ledCircle.className = "led-indicator"; // 기본 클래스만 남김
             
-            if (status === "ON") {
+            if (status === "LED_ON") {
                 ledCircle.classList.add("on");
                 console.log("✅ LED status changed to ON");
-            } else if (status === "OFF") {
+            } else if (status === "LED_OFF") {
                 ledCircle.classList.add("off");
                 console.log("✅ LED status changed to OFF");
             } else {
