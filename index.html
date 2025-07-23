@@ -170,6 +170,77 @@
             border: 1px solid rgba(231, 76, 60, 0.3);
         }
 
+        /* 온도 섹션 스타일 */
+        .temperature-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .temp-display {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px auto;
+            max-width: 200px;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .temp-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .temp-display:hover::before {
+            animation: shine 1.5s ease-in-out;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .temp-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .temp-status {
+            font-size: 0.9rem;
+            text-align: center;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .temp-status.normal {
+            color: #2ecc71;
+        }
+
+        .temp-status.warm {
+            color: #f39c12;
+        }
+
+        .temp-status.hot {
+            color: #e74c3c;
+        }
+
+        .temp-status.cold {
+            color: #3498db;
+        }
+
         /* 모바일 최적화 */
         @media (max-width: 480px) {
             body {
@@ -216,6 +287,19 @@
 
             #ledStatus {
                 font-size: 1rem;
+            }
+
+            .temp-display {
+                max-width: 180px;
+                padding: 18px;
+            }
+
+            .temp-value {
+                font-size: 1.8rem;
+            }
+
+            .temp-status {
+                font-size: 0.85rem;
             }
         }
 
@@ -264,6 +348,14 @@
         <div class="status-section">
             <h2>LED Status: <span id="ledStatus">UNKNOWN</span></h2>
             <div class="led-indicator unknown" id="ledCircle" role="img" aria-label="LED 상태 표시"></div>
+            
+            <div class="temperature-section">
+                <h2>🌡️ Temperature: <span id="temperature">--</span>°C</h2>
+                <div class="temp-display" id="tempDisplay">
+                    <div class="temp-value">--°C</div>
+                    <div class="temp-status" id="tempStatus">측정 중...</div>
+                </div>
+            </div>
         </div>
 
         <div class="connection-status disconnected" id="connectionStatus">
@@ -287,6 +379,7 @@
             connectionStatusEl.textContent = "✅ MQTT 브로커에 연결됨";
             connectionStatusEl.className = "connection-status connected";
             client.subscribe("status/led");
+            client.subscribe("ctemp");  // 온도 토픽 구독 추가
         }
 
         function onConnectionLost(responseObject) {
@@ -302,27 +395,68 @@
             console.log("Topic:", message.destinationName);
             console.log("Payload:", message.payloadString);
             
-            const statusElement = document.getElementById("ledStatus");
-            const ledCircle = document.getElementById("ledCircle");
+            const topic = message.destinationName;
+            const payload = message.payloadString.trim();
 
-            const status = message.payloadString.trim().toUpperCase();
-            console.log("Processed status:", status);
-            
-            // LED 시각화 처리
-            ledCircle.className = "led-indicator";
-            
-            if (status === "LED_ON") {
-                statusElement.textContent = "ON";
-                ledCircle.classList.add("on");
-                console.log("✅ LED status changed to ON");
-            } else if (status === "LED_OFF") {
-                statusElement.textContent = "OFF";
-                ledCircle.classList.add("off");
-                console.log("✅ LED status changed to OFF");
-            } else {
-                statusElement.textContent = "UNKNOWN";
-                ledCircle.classList.add("unknown");
-                console.log("❓ LED status changed to UNKNOWN - received:", JSON.stringify(status));
+            // LED 상태 메시지 처리
+            if (topic === "status/led") {
+                const statusElement = document.getElementById("ledStatus");
+                const ledCircle = document.getElementById("ledCircle");
+                const status = payload.toUpperCase();
+                
+                ledCircle.className = "led-indicator";
+                
+                if (status === "LED_ON") {
+                    statusElement.textContent = "ON";
+                    ledCircle.classList.add("on");
+                    console.log("✅ LED status changed to ON");
+                } else if (status === "LED_OFF") {
+                    statusElement.textContent = "OFF";
+                    ledCircle.classList.add("off");
+                    console.log("✅ LED status changed to OFF");
+                } else {
+                    statusElement.textContent = "UNKNOWN";
+                    ledCircle.classList.add("unknown");
+                    console.log("❓ LED status changed to UNKNOWN - received:", JSON.stringify(status));
+                }
+            }
+            // 온도 메시지 처리
+            else if (topic === "ctemp") {
+                const tempElement = document.getElementById("temperature");
+                const tempDisplay = document.querySelector(".temp-value");
+                const tempStatus = document.getElementById("tempStatus");
+                
+                const temperature = parseFloat(payload);
+                
+                if (!isNaN(temperature)) {
+                    const tempText = temperature.toFixed(1);
+                    tempElement.textContent = tempText;
+                    tempDisplay.textContent = tempText + "°C";
+                    
+                    // 온도에 따른 상태 표시
+                    tempStatus.className = "temp-status";
+                    if (temperature < 15) {
+                        tempStatus.textContent = "추움";
+                        tempStatus.classList.add("cold");
+                    } else if (temperature >= 15 && temperature < 25) {
+                        tempStatus.textContent = "적정 온도";
+                        tempStatus.classList.add("normal");
+                    } else if (temperature >= 25 && temperature < 30) {
+                        tempStatus.textContent = "따뜻함";
+                        tempStatus.classList.add("warm");
+                    } else {
+                        tempStatus.textContent = "더움";
+                        tempStatus.classList.add("hot");
+                    }
+                    
+                    console.log("🌡️ Temperature updated:", tempText + "°C");
+                } else {
+                    console.log("❌ Invalid temperature data:", payload);
+                    tempElement.textContent = "--";
+                    tempDisplay.textContent = "--°C";
+                    tempStatus.textContent = "오류";
+                    tempStatus.className = "temp-status";
+                }
             }
         };
 
