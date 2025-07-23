@@ -30,7 +30,7 @@
             padding: 30px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
-            max-width: 400px;
+            max-width: 800px;
             width: 100%;
         }
 
@@ -39,6 +39,13 @@
             color: #2c3e50;
             margin-bottom: 30px;
             font-weight: 700;
+        }
+
+        /* LED Control 섹션 */
+        .led-control-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
         }
 
         .button-container {
@@ -150,31 +157,25 @@
             }
         }
 
-        .connection-status {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
+        /* 센서 데이터 2열 배치 */
+        .sensors-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
         }
 
-        .connection-status.connected {
-            background-color: rgba(46, 204, 113, 0.1);
-            color: #27ae60;
-            border: 1px solid rgba(46, 204, 113, 0.3);
+        .sensor-column {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
         }
 
-        .connection-status.disconnected {
-            background-color: rgba(231, 76, 60, 0.1);
-            color: #e74c3c;
-            border: 1px solid rgba(231, 76, 60, 0.3);
-        }
-
-        /* 온도 섹션 스타일 */
         .temperature-section {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .temp-display {
@@ -241,12 +242,33 @@
             color: #3498db;
         }
 
-        /* 모바일 최적화 */
-        @media (max-width: 480px) {
-            body {
-                padding: 15px;
-            }
+        .connection-status {
+            margin-top: 30px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
 
+        .connection-status.connected {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .connection-status.disconnected {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            .sensors-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
             .container {
                 padding: 25px 20px;
                 border-radius: 15px;
@@ -306,7 +328,7 @@
         /* 태블릿 최적화 */
         @media (min-width: 481px) and (max-width: 768px) {
             .container {
-                max-width: 500px;
+                max-width: 600px;
                 padding: 35px;
             }
 
@@ -338,47 +360,56 @@
 
 <body>
     <div class="container">
-        <h1>🔆 LED Control</h1>
-        
-        <div class="button-container">
-            <button onclick="sendMessage('ON')" aria-label="LED 켜기">Turn ON <br></br>
-	    <a>신호보내기</a></button>
-            <button onclick="sendMessage('OFF')" aria-label="LED 끄기">Turn OFF <br></br>
-	    <a>신호끄기</a></button>
+        <!-- LED Control 섹션을 상단에 배치 -->
+        <div class="led-control-section">
+            <h1>🔆 두미 신호 제어</h1>
+            
+            <div class="button-container">
+                <button onclick="sendMessage('ON')" aria-label="LED 켜기">Turn ON<br>신호보내기</br></button>
+                <button onclick="sendMessage('OFF')" aria-label="LED 끄기">Turn OFF<br>신호끄기</br></button>
+            </div>
+
+            <div class="status-section">
+                <h2>LED Status: <span id="ledStatus">UNKNOWN</span></h2>
+                <div class="led-indicator unknown" id="ledCircle" role="img" aria-label="LED 상태 표시"></div>
+            </div>
         </div>
 
-        <div class="status-section">
-            <h2>LED Status: <span id="ledStatus">UNKNOWN</span></h2>
-            <div class="led-indicator unknown" id="ledCircle" role="img" aria-label="LED 상태 표시"></div>
-            
-            <div class="temperature-section">
-                <h2>🌡️ Temperature: <span id="temperature">--</span>°C</h2>
-                <div class="temp-display" id="tempDisplay">
-                    <div class="temp-value">--°C</div>
-                    <div class="temp-status" id="tempStatus">측정 중...</div>
+        <!-- 센서 데이터를 2열로 배치 -->
+        <div class="sensors-grid">
+            <!-- 왼쪽 열: Temperature와 밝기 -->
+            <div class="sensor-column">
+                <div class="temperature-section">
+                    <h2>🌡️ Temperature: <span id="temperature">--</span>°C</h2>
+                    <div class="temp-display" id="tempDisplay">
+                        <div class="temp-value">--°C</div>
+                        <div class="temp-status" id="tempStatus">측정 중...</div>
+                    </div>
                 </div>
-								<!-- DHT11 온도 표시 -->
-				<div class="temperature-section">
-					<h2>🌡️ 두미네 방 온도: <span id="dhtTemp">--</span>°C</h2>
-					<div class="temp-display">
-						<div class="temp-value" id="dhtTempValue">--°C</div>
-					</div>
-				</div>
 
-				<!-- 습도 표시 -->
-				<div class="temperature-section">
-					<h2>💧 두미네 방 습도: <span id="humidity">--</span>%</h2>
-					<div class="temp-display">
-						<div class="temp-value" id="humidityValue">--%</div>
-					</div>
-				</div>
-				<!-- 밝기 상태 표시 -->
-				<div class="temperature-section">
-					<h2>💡 두미네 방 밝기: <span id="lightStatus">UNKNOWN</span></h2>
-					<div class="temp-display" id="lightBox">
-						<div class="temp-value" id="lightText">--</div>
-					</div>
-				</div>
+                <div class="temperature-section">
+                    <h2>💡 두미네 방 밝기: <span id="lightStatus">UNKNOWN</span></h2>
+                    <div class="temp-display" id="lightBox">
+                        <div class="temp-value" id="lightText">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오른쪽 열: 두미네 방 온도와 습도 -->
+            <div class="sensor-column">
+                <div class="temperature-section">
+                    <h2>🌡️ 두미네 방 온도: <span id="dhtTemp">--</span>°C</h2>
+                    <div class="temp-display">
+                        <div class="temp-value" id="dhtTempValue">--°C</div>
+                    </div>
+                </div>
+
+                <div class="temperature-section">
+                    <h2>💧 두미네 방 습도: <span id="humidity">--</span>%</h2>
+                    <div class="temp-display">
+                        <div class="temp-value" id="humidityValue">--%</div>
+                    </div>
+                </div>
             </div>
         </div>
 
