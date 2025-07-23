@@ -138,11 +138,20 @@
         }
 
         client.onMessageArrived = function (message) {
-            console.log("📩 Message arrived: " + message.payloadString);
+            console.log("📩 Raw message arrived:");
+            console.log("Topic:", message.destinationName);
+            console.log("Payload:", message.payloadString);
+            console.log("Payload length:", message.payloadString.length);
+            console.log("Payload bytes:", Array.from(message.payloadString).map(c => c.charCodeAt(0)));
+            
             const statusElement = document.getElementById("ledStatus");
             const ledCircle = document.getElementById("ledCircle");
 
             const status = message.payloadString.trim().toUpperCase();
+            console.log("Processed status:", status);
+            console.log("Status === 'ON':", status === "ON");
+            console.log("Status === 'OFF':", status === "OFF");
+            
             statusElement.textContent = status;
 
             // LED 시각화 처리 - 모든 클래스를 완전히 제거하고 새로 추가
@@ -150,13 +159,13 @@
             
             if (status === "ON") {
                 ledCircle.classList.add("on");
-                console.log("LED status changed to ON");
+                console.log("✅ LED status changed to ON");
             } else if (status === "OFF") {
                 ledCircle.classList.add("off");
-                console.log("LED status changed to OFF");
+                console.log("✅ LED status changed to OFF");
             } else {
                 ledCircle.classList.add("unknown");
-                console.log("LED status changed to UNKNOWN");
+                console.log("❓ LED status changed to UNKNOWN - received:", JSON.stringify(status));
             }
         };
 
