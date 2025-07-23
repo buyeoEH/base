@@ -386,11 +386,11 @@
     <div class="container">
         <!-- LED Control 섹션을 상단에 배치 -->
         <div class="led-control-section">
-            <h1>🔆 LED Control</h1>
+            <h1>🔆 두미 신호 제어</h1>
             
             <div class="button-container">
-                <button onclick="sendMessage('ON')" aria-label="LED 켜기">Turn ON</button>
-                <button onclick="sendMessage('OFF')" aria-label="LED 끄기">Turn OFF</button>
+                <button onclick="sendMessage('ON')" aria-label="LED 켜기">Turn ON<br>신호 보내기</button>
+                <button onclick="sendMessage('OFF')" aria-label="LED 끄기">Turn OFF<br>신호 끄기</button>
             </div>
 
             <div class="status-section">
@@ -436,9 +436,13 @@
                 </div>
 
                 <div class="temperature-section">
-                    
-			<h2 id="discomfortBox">😷 불쾌지수: <span id="discomfortIndex">--</span></h2>
-                   
+					<div class="temp-display" id="discomfortBox">
+						<h2>😷 불쾌지수: <span id="discomfortIndex">--</span></h2>
+					</div>
+                    <div class="temp-display" id="discomfortBox">
+                        <div class="temp-value" id="discomfortValue">--</div>
+                        <div class="temp-status" id="discomfortStatus">측정 중...</div>
+                    </div>
                 </div>
             </div>
         </div>
