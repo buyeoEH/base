@@ -5,6 +5,66 @@
     <meta charset="UTF-8">
     <title>Pico W LED Control</title>
 </head>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #c9d6ff, #e2e2e2);
+        margin: 0;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin-top: 30px;
+        color: #34495e;
+    }
+
+    #ledStatus {
+        font-weight: bold;
+        color: #e74c3c;
+    }
+
+    button {
+        background-color: #3498db;
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        margin: 10px;
+        font-size: 1.2rem;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+        background-color: #2980b9;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+    @media (max-width: 600px) {
+        button {
+            width: 80%;
+            font-size: 1rem;
+            padding: 12px;
+        }
+    }
+</style>
 
 <body>
     <h1>Control LED</h1>
