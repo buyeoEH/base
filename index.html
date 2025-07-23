@@ -149,8 +149,8 @@
 
             const status = message.payloadString.trim().toUpperCase();
             console.log("Processed status:", status);
-            console.log("Status === 'ON':", status === "ON");
-            console.log("Status === 'OFF':", status === "OFF");
+            console.log("Status === 'ON':", status === "LED_ON");
+            console.log("Status === 'OFF':", status === "LED_OFF");
             
             statusElement.textContent = status;
 
