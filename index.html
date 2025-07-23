@@ -13,7 +13,7 @@
 
     <h2>LED Status: <span id="ledStatus">UNKNOWN</span></h2>
 
-    <script src="mqttws31.js"></script>
+    <script src="base/mqttws31.js"></script>
     <script>
         const clientID = "webclient_" + parseInt(Math.random() * 1000);
         const client = new Paho.MQTT.Client(
