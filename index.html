@@ -355,6 +355,21 @@
                     <div class="temp-value">--°C</div>
                     <div class="temp-status" id="tempStatus">측정 중...</div>
                 </div>
+								<!-- DHT11 온도 표시 -->
+				<div class="temperature-section">
+					<h2>🌡️ DHT11 Temp: <span id="dhtTemp">--</span>°C</h2>
+					<div class="temp-display">
+						<div class="temp-value" id="dhtTempValue">--°C</div>
+					</div>
+				</div>
+
+				<!-- 습도 표시 -->
+				<div class="temperature-section">
+					<h2>💧 Humidity: <span id="humidity">--</span>%</h2>
+					<div class="temp-display">
+						<div class="temp-value" id="humidityValue">--%</div>
+					</div>
+				</div>
             </div>
         </div>
 
@@ -380,6 +395,8 @@
             connectionStatusEl.className = "connection-status connected";
             client.subscribe("status/led");
             client.subscribe("ctemp");  // 온도 토픽 구독 추가
+			client.subscribe("HTMP");
+			client.subscribe("HHUM");
         }
 
         function onConnectionLost(responseObject) {
@@ -458,6 +475,40 @@
                     tempStatus.className = "temp-status";
                 }
             }
+			else if (topic === "HTMP") {
+				const dhtTemp = parseFloat(payload);
+				const dhtTempElement = document.getElementById("dhtTemp");
+				const dhtTempValue = document.getElementById("dhtTempValue");
+
+				if (!isNaN(dhtTemp)) {
+					const text = dhtTemp.toFixed(1);
+					dhtTempElement.textContent = text;
+					dhtTempValue.textContent = text + "°C";
+					console.log("🌡️ DHT11 온도:", text + "°C");
+				} else {
+					dhtTempElement.textContent = "--";
+					dhtTempValue.textContent = "--°C";
+					console.log("❌ DHT11 온도 오류:", payload);
+				}
+			}
+
+			else if (topic === "HHUM") {
+				const humidity = parseFloat(payload);
+				const humElement = document.getElementById("humidity");
+				const humValue = document.getElementById("humidityValue");
+
+				if (!isNaN(humidity)) {
+					const text = humidity.toFixed(1);
+					humElement.textContent = text;
+					humValue.textContent = text + "%";
+					console.log("💧 습도:", text + "%");
+				} else {
+					humElement.textContent = "--";
+					humValue.textContent = "--%";
+					console.log("❌ 습도 오류:", payload);
+				}
+			}
+
         };
 
         client.onConnectionLost = onConnectionLost;
