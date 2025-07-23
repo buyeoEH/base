@@ -3,125 +3,273 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pico W LED Control</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #c9d6ff, #e2e2e2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0;
-            padding: 40px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             color: #2c3e50;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+            font-weight: 600;
+            min-width: 120px;
+            touch-action: manipulation;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .status-section {
+            margin-top: 20px;
         }
 
         h2 {
-            font-size: 1.5rem;
-            margin-top: 30px;
+            font-size: 1.3rem;
             color: #34495e;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
 
         #ledStatus {
             font-weight: bold;
             color: #e74c3c;
+            font-size: 1.1rem;
         }
 
         .led-indicator {
-            width: 50px;
-            height: 50px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            margin-top: 15px;
-            border: 3px solid #bdc3c7;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            margin: 20px auto;
+            border: 4px solid #ecf0f1;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .led-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: all 0.3s ease;
         }
 
         /* ON 상태: 초록색 */
         .led-indicator.on {
-            background-color: #2ecc71 !important;
-            box-shadow: 0 0 15px #2ecc71 !important;
+            background: radial-gradient(circle, #2ecc71, #27ae60) !important;
+            border-color: #2ecc71 !important;
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.6), 0 0 60px rgba(46, 204, 113, 0.3) !important;
             animation: none !important;
             opacity: 1 !important;
         }
 
         /* OFF 상태: 회색 */
         .led-indicator.off {
-            background-color: #7f8c8d !important;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1) !important;
+            background: radial-gradient(circle, #7f8c8d, #95a5a6) !important;
+            border-color: #bdc3c7 !important;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
             animation: none !important;
             opacity: 1 !important;
         }
 
         /* UNKNOWN 상태: 회색이 깜빡임 */
         .led-indicator.unknown {
-            background-color: #bdc3c7;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            animation: blink 1s infinite;
+            background: radial-gradient(circle, #bdc3c7, #95a5a6);
+            border-color: #bdc3c7;
+            animation: blink 1.5s infinite ease-in-out;
         }
 
         @keyframes blink {
             0%, 100% { 
                 opacity: 1;
-                background-color: #bdc3c7;
+                transform: scale(1);
             }
             50% { 
-                opacity: 0.3;
-                background-color: #95a5a6;
+                opacity: 0.4;
+                transform: scale(0.95);
             }
         }
 
-        button {
-            background-color: #3498db;
-            border: none;
-            color: white;
-            padding: 15px 30px;
-            margin: 10px;
-            font-size: 1.2rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        .connection-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        button:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        .connection-status.connected {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(46, 204, 113, 0.3);
         }
 
-        button:active {
-            transform: scale(0.95);
+        .connection-status.disconnected {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
         }
 
-        @media (max-width: 600px) {
+        /* 모바일 최적화 */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 25px 20px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 25px;
+            }
+
+            .button-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+
             button {
-                width: 80%;
-                font-size: 1rem;
-                padding: 12px;
+                width: 100%;
+                padding: 18px;
+                font-size: 1.2rem;
+                min-width: unset;
             }
 
             .led-indicator {
-                width: 40px;
-                height: 40px;
+                width: 70px;
+                height: 70px;
+            }
+
+            .led-indicator::before {
+                top: 12px;
+                left: 12px;
+                width: 16px;
+                height: 16px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            #ledStatus {
+                font-size: 1rem;
+            }
+        }
+
+        /* 태블릿 최적화 */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .container {
+                max-width: 500px;
+                padding: 35px;
+            }
+
+            button {
+                padding: 16px 30px;
+                font-size: 1.15rem;
+            }
+
+            .led-indicator {
+                width: 90px;
+                height: 90px;
+            }
+        }
+
+        /* 터치 디바이스를 위한 추가 스타일 */
+        @media (hover: none) and (pointer: coarse) {
+            button {
+                padding: 20px 25px;
+                font-size: 1.2rem;
+            }
+
+            button:active {
+                background: linear-gradient(45deg, #2980b9, #1f618d);
+                transform: scale(0.98);
             }
         }
     </style>
 </head>
 
 <body>
-    <h1>Control LED</h1>
-    <button onclick="sendMessage('ON')">Turn ON</button>
-    <button onclick="sendMessage('OFF')">Turn OFF</button>
+    <div class="container">
+        <h1>🔆 LED Control</h1>
+        
+        <div class="button-container">
+            <button onclick="sendMessage('ON')" aria-label="LED 켜기">Turn ON</button>
+            <button onclick="sendMessage('OFF')" aria-label="LED 끄기">Turn OFF</button>
+        </div>
 
-    <h2>LED Status: <span id="ledStatus">UNKNOWN</span></h2>
-    <div class="led-indicator unknown" id="ledCircle"></div>
+        <div class="status-section">
+            <h2>LED Status: <span id="ledStatus">UNKNOWN</span></h2>
+            <div class="led-indicator unknown" id="ledCircle" role="img" aria-label="LED 상태 표시"></div>
+        </div>
+
+        <div class="connection-status disconnected" id="connectionStatus">
+            연결 중...
+        </div>
+    </div>
 
     <script src="/base/mqttws31.js"></script>
     <script>
@@ -132,55 +280,84 @@
             clientID
         );
 
+        const connectionStatusEl = document.getElementById("connectionStatus");
+
         function onConnect() {
             console.log("✅ Connected to MQTT broker");
+            connectionStatusEl.textContent = "✅ MQTT 브로커에 연결됨";
+            connectionStatusEl.className = "connection-status connected";
             client.subscribe("status/led");
+        }
+
+        function onConnectionLost(responseObject) {
+            if (responseObject.errorCode !== 0) {
+                console.log("❌ Connection lost: " + responseObject.errorMessage);
+                connectionStatusEl.textContent = "❌ 연결이 끊어짐";
+                connectionStatusEl.className = "connection-status disconnected";
+            }
         }
 
         client.onMessageArrived = function (message) {
             console.log("📩 Raw message arrived:");
             console.log("Topic:", message.destinationName);
             console.log("Payload:", message.payloadString);
-            console.log("Payload length:", message.payloadString.length);
-            console.log("Payload bytes:", Array.from(message.payloadString).map(c => c.charCodeAt(0)));
             
             const statusElement = document.getElementById("ledStatus");
             const ledCircle = document.getElementById("ledCircle");
 
             const status = message.payloadString.trim().toUpperCase();
             console.log("Processed status:", status);
-            console.log("Status === 'ON':", status === "LED_ON");
-            console.log("Status === 'OFF':", status === "LED_OFF");
             
-            statusElement.textContent = status;
-
-            // LED 시각화 처리 - 모든 클래스를 완전히 제거하고 새로 추가
-            ledCircle.className = "led-indicator"; // 기본 클래스만 남김
+            // LED 시각화 처리
+            ledCircle.className = "led-indicator";
             
             if (status === "LED_ON") {
+                statusElement.textContent = "ON";
                 ledCircle.classList.add("on");
                 console.log("✅ LED status changed to ON");
             } else if (status === "LED_OFF") {
+                statusElement.textContent = "OFF";
                 ledCircle.classList.add("off");
                 console.log("✅ LED status changed to OFF");
             } else {
+                statusElement.textContent = "UNKNOWN";
                 ledCircle.classList.add("unknown");
                 console.log("❓ LED status changed to UNKNOWN - received:", JSON.stringify(status));
             }
         };
 
+        client.onConnectionLost = onConnectionLost;
+
         client.connect({
             onSuccess: onConnect,
+            onFailure: function(message) {
+                console.log("❌ Connection failed: " + message.errorMessage);
+                connectionStatusEl.textContent = "❌ 연결 실패";
+                connectionStatusEl.className = "connection-status disconnected";
+            },
             userName: "buyeo",
             password: "Buyeo1974@",
             useSSL: true
         });
 
         function sendMessage(msg) {
-            const message = new Paho.MQTT.Message(msg);
-            message.destinationName = "temp";
-            client.send(message);
+            if (client.isConnected()) {
+                const message = new Paho.MQTT.Message(msg);
+                message.destinationName = "temp";
+                client.send(message);
+                console.log("📤 Message sent:", msg);
+            } else {
+                console.log("❌ Cannot send message - not connected");
+                alert("MQTT 브로커에 연결되지 않았습니다.");
+            }
         }
+
+        // 페이지 언로드 시 연결 해제
+        window.addEventListener('beforeunload', function() {
+            if (client.isConnected()) {
+                client.disconnect();
+            }
+        });
     </script>
 </body>
 
