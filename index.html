@@ -1,31 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <title>Pico W LED Control</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 모바일 대응 -->
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #c9d6ff, #e2e2e2);
             margin: 0;
-            padding: 40px 20px;
+            padding: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            text-align: center;
         }
 
         h1 {
-            font-size: 2.8rem;
+            font-size: 2.5rem;
             color: #2c3e50;
             margin-bottom: 20px;
         }
 
         h2 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             margin-top: 30px;
             color: #34495e;
         }
@@ -36,58 +34,66 @@
         }
 
         .led-indicator {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             margin-top: 15px;
             border: 3px solid #bdc3c7;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
+        /* ON 상태: 초록색 */
         .led-indicator.on {
-            background-color: #2ecc71;
-            box-shadow: 0 0 15px #2ecc71;
+            background-color: #2ecc71 !important;
+            box-shadow: 0 0 15px #2ecc71 !important;
+            animation: none !important;
+            opacity: 1 !important;
         }
 
+        /* OFF 상태: 회색 */
         .led-indicator.off {
-            background-color: #7f8c8d;
-            box-shadow: none;
+            background-color: #7f8c8d !important;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1) !important;
+            animation: none !important;
+            opacity: 1 !important;
         }
 
+        /* UNKNOWN 상태: 회색이 깜빡임 */
         .led-indicator.unknown {
             background-color: #bdc3c7;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
             animation: blink 1s infinite;
         }
 
         @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .button-container {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 20px 0;
+            0%, 100% { 
+                opacity: 1;
+                background-color: #bdc3c7;
+            }
+            50% { 
+                opacity: 0.3;
+                background-color: #95a5a6;
+            }
         }
 
         button {
             background-color: #3498db;
             border: none;
             color: white;
-            padding: 14px 28px;
+            padding: 15px 30px;
+            margin: 10px;
             font-size: 1.2rem;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            min-width: 120px;
         }
 
         button:hover {
             background-color: #2980b9;
             transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
         button:active {
@@ -95,18 +101,10 @@
         }
 
         @media (max-width: 600px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            h2 {
-                font-size: 1.3rem;
-            }
-
             button {
+                width: 80%;
                 font-size: 1rem;
-                padding: 12px 20px;
-                min-width: 100px;
+                padding: 12px;
             }
 
             .led-indicator {
@@ -119,17 +117,15 @@
 
 <body>
     <h1>Control LED</h1>
-    <div class="button-container">
-        <button onclick="sendMessage('ON')">Turn ON</button>
-        <button onclick="sendMessage('OFF')">Turn OFF</button>
-    </div>
+    <button onclick="sendMessage('ON')">Turn ON</button>
+    <button onclick="sendMessage('OFF')">Turn OFF</button>
 
     <h2>LED Status: <span id="ledStatus">UNKNOWN</span></h2>
     <div class="led-indicator unknown" id="ledCircle"></div>
 
     <script src="/base/mqttws31.js"></script>
     <script>
-        const clientID = "webclient_" + Math.floor(Math.random() * 10000);
+        const clientID = "webclient_" + parseInt(Math.random() * 1000);
         const client = new Paho.MQTT.Client(
             "ad2108ce19ca4229afd02c8277f04889.s1.eu.hivemq.cloud",
             8884,
@@ -141,26 +137,26 @@
             client.subscribe("status/led");
         }
 
-        client.onConnectionLost = function (responseObject) {
-            console.error("❌ Connection lost: ", responseObject.errorMessage);
-        };
-
         client.onMessageArrived = function (message) {
-            console.log("📩 Message arrived:", message.payloadString);
-            const status = message.payloadString.trim().toUpperCase();
+            console.log("📩 Message arrived: " + message.payloadString);
             const statusElement = document.getElementById("ledStatus");
             const ledCircle = document.getElementById("ledCircle");
 
+            const status = message.payloadString.trim().toUpperCase();
             statusElement.textContent = status;
 
-            ledCircle.classList.remove("on", "off", "unknown");
-
+            // LED 시각화 처리 - 모든 클래스를 완전히 제거하고 새로 추가
+            ledCircle.className = "led-indicator"; // 기본 클래스만 남김
+            
             if (status === "ON") {
                 ledCircle.classList.add("on");
+                console.log("LED status changed to ON");
             } else if (status === "OFF") {
                 ledCircle.classList.add("off");
+                console.log("LED status changed to OFF");
             } else {
                 ledCircle.classList.add("unknown");
+                console.log("LED status changed to UNKNOWN");
             }
         };
 
@@ -175,7 +171,6 @@
             const message = new Paho.MQTT.Message(msg);
             message.destinationName = "temp";
             client.send(message);
-            console.log("📤 Sent:", msg);
         }
     </script>
 </body>
