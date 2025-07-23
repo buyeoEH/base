@@ -357,7 +357,7 @@
                 </div>
 								<!-- DHT11 온도 표시 -->
 				<div class="temperature-section">
-					<h2>🌡️ 두미네 방 온도: <span id="dhtTemp">--</span>°C</h2>
+					<h2>🌡️ DHT11 Temp: <span id="dhtTemp">--</span>°C</h2>
 					<div class="temp-display">
 						<div class="temp-value" id="dhtTempValue">--°C</div>
 					</div>
@@ -365,16 +365,9 @@
 
 				<!-- 습도 표시 -->
 				<div class="temperature-section">
-					<h2>💧 두미네 방 습도: <span id="humidity">--</span>%</h2>
+					<h2>💧 Humidity: <span id="humidity">--</span>%</h2>
 					<div class="temp-display">
 						<div class="temp-value" id="humidityValue">--%</div>
-					</div>
-				</div>
-		    		<!-- 조도 표시 -->
-				<div class="temperature-section">
-					<h2>☀️ 두미네 방 밝기: <span id="lightStatus">UNKNOWN</span></h2>
-					<div class="temp-display" id="lightBox">
-						<div class="temp-value"  id="lightText">--</div>
 					</div>
 				</div>
             </div>
@@ -514,29 +507,6 @@
 					humValue.textContent = "--%";
 					console.log("❌ 습도 오류:", payload);
 				}
-			}
-		client.subscribe("CDS");
-
-			else if (topic === "CDS") {
-			    const lightBox = document.getElementById("lightBox");
-			    const lightStatus = document.getElementById("lightStatus");
-			    const lightText = document.getElementById("lightText");
-			
-			    if (payload === "0") {
-			        lightStatus.textContent = "밝음";
-			        lightText.textContent = "☀️ 밝은 상태";
-			        lightBox.style.background = "linear-gradient(135deg, #f1c40f, #f39c12)";
-			        console.log("☀️ 방이 밝습니다.");
-			    } else if (payload === "1") {
-			        lightStatus.textContent = "어두움";
-			        lightText.textContent = "🌙 어두운 상태";
-			        lightBox.style.background = "linear-gradient(135deg, #34495e, #2c3e50)";
-			        console.log("🌙 방이 어둡습니다.");
-			    } else {
-			        lightStatus.textContent = "UNKNOWN";
-			        lightText.textContent = "--";
-			        lightBox.style.background = "";
-			    }
 			}
 
         };
