@@ -43,24 +43,36 @@
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
+        /* ON 상태: 초록색 */
         .led-indicator.on {
             background-color: #2ecc71;
             box-shadow: 0 0 15px #2ecc71;
+            animation: none;
         }
 
+        /* OFF 상태: 회색 */
         .led-indicator.off {
             background-color: #7f8c8d;
-            box-shadow: none;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            animation: none;
         }
 
+        /* UNKNOWN 상태: 회색이 깜빡임 */
         .led-indicator.unknown {
             background-color: #bdc3c7;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
             animation: blink 1s infinite;
         }
 
         @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            0%, 100% { 
+                opacity: 1;
+                background-color: #bdc3c7;
+            }
+            50% { 
+                opacity: 0.3;
+                background-color: #95a5a6;
+            }
         }
 
         button {
