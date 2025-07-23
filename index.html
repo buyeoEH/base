@@ -1,8 +1,55 @@
+<!DOCTYPE html>
 <html>
-    <head><title>Pico LED Control</title></head>
-    <body>
-        <h2>LED is currently: {led_state}</h2>
-      <button type="button" onclick="ledON()">LED ON</button>
-      <button type="button" onclick="ledOFF()">LED OFF</button>
-    </body>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pico W LED Control</title>
+</head>
+
+<body>
+    <h1>Control LED</h1>
+    <button onclick="sendMessage('ON')">Turn ON</button>
+    <button onclick="sendMessage('OFF')">Turn OFF</button>
+
+    <h2>LED Status: <span id="ledStatus">UNKNOWN</span></h2>
+
+    <script src="mqttws31.js"></script>
+    <script>
+        const clientID = "webclient_" + parseInt(Math.random() * 1000);
+        const client = new Paho.MQTT.Client(
+            "ad2108ce19ca4229afd02c8277f04889.s1.eu.hivemq.cloud",
+            8884,
+            clientID
+        );
+
+        // 연결 완료 후 호출될 함수
+        function onConnect() {
+            console.log("✅ Connected to MQTT broker");
+            client.subscribe("status/led");  // 상태 토픽 구독
+        }
+
+        // 메시지 수신 시 실행될 함수
+        client.onMessageArrived = function (message) {
+            console.log("📩 Message arrived: " + message.payloadString);
+            const statusElement = document.getElementById("ledStatus");
+            statusElement.textContent = message.payloadString;
+        };
+
+        // 연결 시작
+        client.connect({
+            onSuccess: onConnect,
+            userName: "buyeo",
+            password: "Buyeo1974@",
+            useSSL: true
+        });
+
+        // 메시지 보내기 함수
+        function sendMessage(msg) {
+            const message = new Paho.MQTT.Message(msg);
+            message.destinationName = "temp";  // LED 제어용 topic
+            client.send(message);
+        }
+    </script>
+</body>
+
 </html>
